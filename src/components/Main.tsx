@@ -2,8 +2,6 @@
 
 import React, { useState, useEffect } from "react";
 import sdk, { type Context } from "@farcaster/miniapp-sdk";
-
-import "react-farcaster-embed/dist/styles.css";
 import Connect from "./Connect";
 import { useAccount } from "wagmi";
 import SupportDeveloperCard from "./SupportDeveloperCard";
