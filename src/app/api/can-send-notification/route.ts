@@ -45,6 +45,14 @@ export async function GET() {
     }
   );
 
+    await fetch(
+    `${process.env.NEXT_PUBLIC_URL}/api/cast?key=${process.env.KEY}`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+    }
+  );
+
   return NextResponse.json({
     notified: true,
     percent: rounded,
