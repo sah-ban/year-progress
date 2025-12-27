@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import {
   Message,
   NobleEd25519Signer,
@@ -10,7 +10,15 @@ import { hexToBytes } from "@noble/hashes/utils";
 const fid = 844184;
 const SIGNER = process.env.PRIVATE_KEY || "";
 
-export async function GET() {
+export async function POST(request: NextRequest) {
+  const key = request.nextUrl.searchParams.get("key");
+
+  if (!key || key !== process.env.KEY) {
+    return NextResponse.json(
+      { error: "Invalid or misssing key" },
+      { status: 400 }
+    );
+  }
   const now = new Date();
 
   // UTC midnight (same day for everyone)
