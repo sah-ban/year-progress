@@ -29,6 +29,12 @@ export default function GiphySearch() {
       };
     }
   }, [isSDKLoaded]);
+  
+  useEffect(() => {
+    if (!context?.client.added) {
+      sdk.actions.addMiniApp();
+    }
+  }, [context?.client.added]);
 
   if (!context)
     return (
@@ -39,12 +45,7 @@ export default function GiphySearch() {
           </p>
           <div
             className="flex items-center justify-center text-center bg-indigo-800 p-3 rounded-lg mt-4 cursor-pointer"
-            onClick={() =>
-              window.open(
-                "",
-                "_blank"
-              )
-            }
+            onClick={() => window.open("", "_blank")}
           >
             Open in Farcaster
           </div>
