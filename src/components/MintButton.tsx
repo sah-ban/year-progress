@@ -8,7 +8,7 @@ import { useEffect, useState } from "react";
 import sdk from "@farcaster/miniapp-sdk";
 
 const CONTRACT_ADDRESS =
-  "0xD01b4C97266Ef8ec987D21A8Cf332EA0Fa3730cB" as Address;
+  "0x6731B815BD9F699B6E2f3Bc756ff602b49c4dE64" as Address;
 
 interface MintButtonProps {
   now: number | string;
