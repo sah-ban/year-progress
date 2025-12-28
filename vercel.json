@@ -1,8 +1,0 @@
-{
-  "crons": [
-    {
-      "path": "/api/can-send-notification",
-      "schedule": "0 0 * * *"
-    }
-  ]
-}
