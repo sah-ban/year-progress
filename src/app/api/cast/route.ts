@@ -6,6 +6,7 @@ import {
   makeCastAdd,
 } from "@farcaster/core";
 import { hexToBytes } from "@noble/hashes/utils";
+import { getYearProgressFromTimestamp } from "@/lib/time";
 
 const fid = 844184;
 const SIGNER = process.env.PRIVATE_KEY || "";
@@ -19,26 +20,10 @@ export async function POST(request: NextRequest) {
       { status: 400 }
     );
   }
-  const now = new Date();
 
-  // UTC midnight (same day for everyone)
-  const utcToday = new Date(
-    Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate())
-  );
+  const ms = Date.now();
+  const { year, percent } = getYearProgressFromTimestamp(ms);
 
-  const y = utcToday.getUTCFullYear();
-  const start = new Date(Date.UTC(y, 0, 1));
-  const end = new Date(Date.UTC(y + 1, 0, 1));
-
-  const dayMs = 1000 * 60 * 60 * 24;
-
-  const total = Math.floor((end.getTime() - start.getTime()) / dayMs);
-  const passed = Math.min(
-    total,
-    Math.floor((utcToday.getTime() - start.getTime()) / dayMs)
-  );
-
-  const percent = (passed / total) * 100;
   const at = Math.floor(Date.now() / 1000);
 
   const hubUrl = process.env.HUB_URL || "";
@@ -48,7 +33,7 @@ export async function POST(request: NextRequest) {
     const dataOptions = { fid, network: 1 };
 
     const castBody: CastAddBody = {
-      text: `${y} is ${percent.toFixed(2)}% complete!`,
+      text: `${year} is ${percent.toFixed(0)}% complete!`,
       embeds: [{ url: `${process.env.NEXT_PUBLIC_URL}?t=${at}` }],
       embedsDeprecated: [],
       mentions: [],
