@@ -1,29 +1,15 @@
 import { ImageResponse } from "next/og";
 import { NextRequest } from "next/server";
+import { getYearProgressFromTimestamp } from "@/lib/time";
 
 export const runtime = "edge";
 
 export async function GET(req: NextRequest) {
-  const tParam = req.nextUrl.searchParams.get("t");
-
-  const timestamp = tParam ? Number(tParam) * 1000 : Date.now();
-
-  // Fallback safety
-  const now = new Date(Number.isFinite(timestamp) ? timestamp : Date.now());
-
-  // UTC-only calculation
-  const year = now.getUTCFullYear();
-  const start = Date.UTC(year, 0, 1);
-  const end = Date.UTC(year + 1, 0, 1);
-
-  const dayMs = 1000 * 60 * 60 * 24;
-  const totalDays = Math.floor((end - start) / dayMs);
-  const passedDays = Math.floor(
-    (Date.UTC(year, now.getUTCMonth(), now.getUTCDate()) - start) / dayMs
-  );
-
-  const percent = Math.min(100, (passedDays / totalDays) * 100);
-
+   const t = Number(req.nextUrl.searchParams.get("t"));
+ 
+   const ms = Number.isFinite(t) ? t * 1000 : Date.now();
+ 
+   const { year, percent } = getYearProgressFromTimestamp(ms);
   return new ImageResponse(
     (
       <div
@@ -117,7 +103,7 @@ export async function GET(req: NextRequest) {
                 justifyContent: "center", // ✅ center text
               }}
             >
-              {percent.toFixed(2)}%
+              {percent.toFixed(0)}%
             </div>
           </div>
         </div>
