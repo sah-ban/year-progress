@@ -14,42 +14,38 @@ const YearProgress = () => {
   const mintedAt = Math.floor(Date.now() / 1000);
 
   useEffect(() => {
-    const calculate = () => {
-      const now = new Date();
+const calculate = () => {
+  const now = new Date();
 
-      // UTC midnight (same day for everyone)
-      const utcToday = new Date(
-        Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate())
-      );
+  const year = now.getUTCFullYear();
 
-      const y = utcToday.getUTCFullYear();
-      const start = new Date(Date.UTC(y, 0, 1));
-      const end = new Date(Date.UTC(y + 1, 0, 1));
+  const start = Date.UTC(year, 0, 1, 0, 0, 0);
+  const end = Date.UTC(year + 1, 0, 1, 0, 0, 0);
 
-      const dayMs = 1000 * 60 * 60 * 24;
+  const totalMs = end - start;
+  const elapsedMs = Date.now() - start;
 
-      const total = Math.floor((end.getTime() - start.getTime()) / dayMs);
-      const passed = Math.min(
-        total,
-        Math.floor((utcToday.getTime() - start.getTime()) / dayMs)
-      );
+  const percent = Math.min(100, (elapsedMs / totalMs) * 100);
 
-      const percent = (passed / total) * 100;
+  const dayMs = 1000 * 60 * 60 * 24;
+  const daysTotal = Math.round(totalMs / dayMs);
+  const daysPassed = Math.floor(elapsedMs / dayMs);
 
-      setYear(y);
-      setDaysPassed(passed);
-      setDaysTotal(total);
-      setProgress(percent);
+  setYear(year);
+  setProgress(percent);
+  setDaysPassed(daysPassed);
+  setDaysTotal(daysTotal);
 
-      setDateLabel(
-        utcToday.toLocaleDateString("en-US", {
-          weekday: "long",
-          month: "long",
-          day: "numeric",
-          timeZone: "UTC",
-        })
-      );
-    };
+  setDateLabel(
+    now.toLocaleDateString("en-US", {
+      weekday: "long",
+      month: "long",
+      day: "numeric",
+      timeZone: "UTC",
+    })
+  );
+};
+
 
     calculate();
     const timer = setInterval(calculate, 60 * 60 * 1000);
@@ -131,7 +127,7 @@ const YearProgress = () => {
               className="text-[48px] font-extrabold leading-none text-lime-400"
               aria-live="polite"
             >
-              {displayProgress.toFixed(1)}%
+              {displayProgress.toFixed(0)}%
             </span>
 
             <span className="mt-2 text-[11px] tracking-wide text-zinc-400">
@@ -149,7 +145,7 @@ const YearProgress = () => {
       <button
         onClick={() =>
           sdk.actions.composeCast({
-            text: `${year} is ${displayProgress.toFixed(2)}% complete!`,
+            text: `${year} is ${displayProgress.toFixed(0)}% complete!`,
             embeds: [`${process.env.NEXT_PUBLIC_URL}?t=${mintedAt}`],
           })
         }
