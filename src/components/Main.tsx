@@ -45,7 +45,7 @@ export default function GiphySearch() {
           </p>
           <div
             className="flex items-center justify-center text-center bg-indigo-800 p-3 rounded-lg mt-4 cursor-pointer"
-            onClick={() => window.open("", "_blank")}
+            onClick={() => window.open("https://farcaster.xyz/miniapps/0LCZ6cNxjDl6/year-progress", "_blank")}
           >
             Open in Farcaster
           </div>
