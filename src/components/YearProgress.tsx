@@ -14,38 +14,37 @@ const YearProgress = () => {
   const mintedAt = Math.floor(Date.now() / 1000);
 
   useEffect(() => {
-const calculate = () => {
-  const now = new Date();
+    const calculate = () => {
+      const now = new Date();
 
-  const year = now.getUTCFullYear();
+      const year = now.getUTCFullYear();
 
-  const start = Date.UTC(year, 0, 1, 0, 0, 0);
-  const end = Date.UTC(year + 1, 0, 1, 0, 0, 0);
+      const start = Date.UTC(year, 0, 1, 0, 0, 0);
+      const end = Date.UTC(year + 1, 0, 1, 0, 0, 0);
 
-  const totalMs = end - start;
-  const elapsedMs = Date.now() - start;
+      const totalMs = end - start;
+      const elapsedMs = Date.now() - start;
 
-  const percent = Math.min(100, (elapsedMs / totalMs) * 100);
+      const percent = Math.min(100, (elapsedMs / totalMs) * 100);
 
-  const dayMs = 1000 * 60 * 60 * 24;
-  const daysTotal = Math.round(totalMs / dayMs);
-  const daysPassed = Math.floor(elapsedMs / dayMs);
+      const dayMs = 1000 * 60 * 60 * 24;
+      const daysTotal = Math.round(totalMs / dayMs);
+      const daysPassed = Math.floor(elapsedMs / dayMs);
 
-  setYear(year);
-  setProgress(percent);
-  setDaysPassed(daysPassed);
-  setDaysTotal(daysTotal);
+      setYear(year);
+      setProgress(percent);
+      setDaysPassed(daysPassed);
+      setDaysTotal(daysTotal);
 
-  setDateLabel(
-    now.toLocaleDateString("en-US", {
-      weekday: "long",
-      month: "long",
-      day: "numeric",
-      timeZone: "UTC",
-    })
-  );
-};
-
+      setDateLabel(
+        now.toLocaleDateString("en-US", {
+          weekday: "long",
+          month: "long",
+          day: "numeric",
+          timeZone: "UTC",
+        })
+      );
+    };
 
     calculate();
     const timer = setInterval(calculate, 60 * 60 * 1000);
@@ -68,7 +67,9 @@ const calculate = () => {
 
   const radius = 90;
   const circumference = 2 * Math.PI * radius;
-  const offset = circumference - (displayProgress / 100) * circumference;
+  const displayProgressInt = Math.floor(displayProgress);
+
+  const offset = circumference - (displayProgressInt / 100) * circumference;
 
   return (
     <div className="h-full w-full text-white flex flex-col items-center justify-center relative overflow-hidden">
@@ -79,7 +80,6 @@ const calculate = () => {
         </h2>
         <p className="text-sm mt-2 text-zinc-400">{dateLabel} (UTC)</p>
       </div>
-
       {/* Circular Progress */}
       <div className="relative z-10 flex justify-center my-10">
         <div className="relative w-[200px] h-[200px] group">
@@ -113,7 +113,7 @@ const calculate = () => {
               r={90}
               strokeWidth="14"
               fill="none"
-              strokeLinecap="round"
+              strokeLinecap="butt"
               strokeDasharray={circumference}
               strokeDashoffset={offset}
               className="text-lime-400 transition-all duration-700 ease-out"
@@ -127,8 +127,7 @@ const calculate = () => {
               className="text-[48px] font-extrabold leading-none text-lime-400"
               aria-live="polite"
             >
-             {Math.floor(displayProgress)}%
-
+              {displayProgressInt}%
             </span>
 
             <span className="mt-2 text-[11px] tracking-wide text-zinc-400">
@@ -137,7 +136,6 @@ const calculate = () => {
           </div>
         </div>
       </div>
-
       {/* Stats */}
       <div className="relative z-10 grid grid-cols-2 gap-6 mb-2">
         <Stat label="Days Passed" value={daysPassed} />
@@ -146,15 +144,15 @@ const calculate = () => {
       <button
         onClick={() =>
           sdk.actions.composeCast({
-            text: `${year} is ${displayProgress.toFixed(0)}% complete!`,
+            text: `${year} is ${displayProgressInt}% complete!`,
             embeds: [`${process.env.NEXT_PUBLIC_URL}?t=${mintedAt}`],
           })
         }
         className="bg-[#7C3AED] text-white px-4 py-2 rounded-lg hover:bg-[#38BDF8] transition cursor-pointer font-semibold mt-4"
       >
         Share
-      </button>      <MintButton now={mintedAt} />
-
+      </button>{" "}
+      <MintButton now={mintedAt} />
     </div>
   );
 };
