@@ -10,6 +10,7 @@ export async function GET(req: NextRequest) {
   const ms = Number.isFinite(t) ? t * 1000 : Date.now();
 
   const { year, percent } = getYearProgressFromTimestamp(ms);
+  const displayProgressInt = Math.floor(percent);
 
   return new ImageResponse(
     (
@@ -86,7 +87,7 @@ export async function GET(req: NextRequest) {
               {/* Fill */}
               <div
                 style={{
-                  width: `${percent}%`,
+                  width: `${displayProgressInt}%`,
                   backgroundColor: "#4ade80",
                   borderRadius: "16px",
                   display: "flex",
@@ -104,7 +105,7 @@ export async function GET(req: NextRequest) {
                 justifyContent: "center",
               }}
             >
-              {percent.toFixed(0)}%
+              {displayProgressInt}%
             </div>
           </div>
         </div>

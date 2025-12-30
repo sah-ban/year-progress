@@ -5,11 +5,13 @@ import { getYearProgressFromTimestamp } from "@/lib/time";
 export const runtime = "edge";
 
 export async function GET(req: NextRequest) {
-   const t = Number(req.nextUrl.searchParams.get("t"));
- 
-   const ms = Number.isFinite(t) ? t * 1000 : Date.now();
- 
-   const { year, percent } = getYearProgressFromTimestamp(ms);
+  const t = Number(req.nextUrl.searchParams.get("t"));
+
+  const ms = Number.isFinite(t) ? t * 1000 : Date.now();
+
+  const { year, percent } = getYearProgressFromTimestamp(ms);
+  const displayProgressInt = Math.floor(percent);
+
   return new ImageResponse(
     (
       <div
@@ -85,7 +87,7 @@ export async function GET(req: NextRequest) {
               {/* Progress Fill */}
               <div
                 style={{
-                  width: `${percent}%`,
+                  width: `${displayProgressInt}%`,
                   backgroundColor: "#4ade80",
                   borderRadius: "12px",
                   display: "flex",
@@ -103,7 +105,7 @@ export async function GET(req: NextRequest) {
                 justifyContent: "center", // ✅ center text
               }}
             >
-              {percent.toFixed(0)}%
+              {displayProgressInt}%
             </div>
           </div>
         </div>

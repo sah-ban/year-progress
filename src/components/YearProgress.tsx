@@ -127,7 +127,8 @@ const calculate = () => {
               className="text-[48px] font-extrabold leading-none text-lime-400"
               aria-live="polite"
             >
-              {displayProgress.toFixed(0)}%
+             {Math.floor(displayProgress)}%
+
             </span>
 
             <span className="mt-2 text-[11px] tracking-wide text-zinc-400">
