@@ -10,8 +10,7 @@ export async function GET() {
   const { year, percent, daysPassed, daysTotal } =
     getYearProgressFromTimestamp(ms);
 
-  const currentInt = Math.floor(percent);
-
+  const currentInt = percent >= 99.8 ? 100 : Math.floor(percent);
   const raw = await redis.get("year-progress:last-int");
   const lastInt = raw !== null ? Number(raw) : -1;
 

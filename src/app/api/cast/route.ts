@@ -23,6 +23,7 @@ export async function POST(request: NextRequest) {
 
   const ms = Date.now();
   const { year, percent } = getYearProgressFromTimestamp(ms);
+  const percentInt = percent >= 99.8 ? 100 : Math.floor(percent);
 
   const at = Math.floor(Date.now() / 1000);
 
@@ -33,7 +34,7 @@ export async function POST(request: NextRequest) {
     const dataOptions = { fid, network: 1 };
 
     const castBody: CastAddBody = {
-      text: `${year} is ${percent.toFixed(0)}% complete!`,
+      text: `${year} is ${percentInt}% complete!`,
       embeds: [{ url: `${process.env.NEXT_PUBLIC_URL}?t=${at}` }],
       embedsDeprecated: [],
       mentions: [],

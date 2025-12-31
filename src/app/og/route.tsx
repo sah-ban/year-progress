@@ -10,7 +10,7 @@ export async function GET(req: NextRequest) {
   const ms = Number.isFinite(t) ? t * 1000 : Date.now();
 
   const { year, percent } = getYearProgressFromTimestamp(ms);
-  const displayProgressInt = Math.floor(percent);
+  const displayProgressInt = percent >= 99.8 ? 100 : Math.floor(percent);
 
   return new ImageResponse(
     (
