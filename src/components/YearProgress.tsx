@@ -158,7 +158,7 @@ const YearProgress = () => {
 };
 
 const Stat = ({ label, value }: { label: string; value: number }) => (
-  <div className="rounded-2xl bg-slate-800/70 border border-white/5 px-6 py-4 text-center shadow-md border-2 border-red-500">
+  <div className="rounded-2xl bg-slate-800/70 border border-white/5 px-6 py-4 text-center shadow-md">
     <div className="text-2xl font-bold text-white">{value}</div>
     <div className="mt-1 text-[10px] uppercase tracking-wider text-zinc-400">
       {label}
