@@ -47,7 +47,7 @@ const MintButton: React.FC<MintButtonProps> = ({ now  }) => {
   }, [isConfirmed]);
 
   return (
-    <div className="absolute bottom-8 w-full flex justify-center">
+    <div className="w-full flex justify-center">
       <button
         onClick={handleMintNFT}
         disabled={isPending || isConfirming || isConfirmed}

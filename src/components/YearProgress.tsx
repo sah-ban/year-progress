@@ -72,16 +72,16 @@ const YearProgress = () => {
   const offset = circumference - (displayProgressInt / 100) * circumference;
 
   return (
-    <div className="h-full w-full text-white flex flex-col items-center justify-center relative overflow-hidden">
+    <div className="h-full w-full text-white flex flex-col items-center justify-between relative overflow-hidden py-5">
       {/* Header */}
-      <div className="absolute top-10 z-10 text-center">
+      <div className="text-center ">
         <h2 className="text-2xl uppercase tracking-[0.3em] font-semibold text-zinc-300">
           {year} Progress
         </h2>
         <p className="text-sm mt-2 text-zinc-400">{dateLabel} (UTC)</p>
       </div>
       {/* Circular Progress */}
-      <div className="relative z-10 flex justify-center my-10">
+      <div className="relative z-10 flex justify-center">
         <div className="relative w-[200px] h-[200px] group">
           <svg width="200" height="200" className="rotate-[-90deg]" aria-hidden>
             {/* Track */}
@@ -137,7 +137,7 @@ const YearProgress = () => {
         </div>
       </div>
       {/* Stats */}
-      <div className="relative z-10 grid grid-cols-2 gap-6 mb-2">
+      <div className="relative z-10 grid grid-cols-2 gap-6">
         <Stat label="Days Passed" value={daysPassed} />
         <Stat label="Days Left" value={daysTotal - daysPassed} />
       </div>
@@ -158,12 +158,13 @@ const YearProgress = () => {
 };
 
 const Stat = ({ label, value }: { label: string; value: number }) => (
-  <div className="rounded-2xl bg-slate-800/70 border border-white/5 px-6 py-4 text-center shadow-md">
+  <div className="rounded-2xl bg-slate-800/70 border border-white/5 px-6 py-4 text-center shadow-md border-2 border-red-500">
     <div className="text-2xl font-bold text-white">{value}</div>
     <div className="mt-1 text-[10px] uppercase tracking-wider text-zinc-400">
       {label}
     </div>
   </div>
 );
+
 
 export default YearProgress;
