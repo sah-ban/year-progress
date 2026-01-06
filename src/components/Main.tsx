@@ -63,9 +63,13 @@ export default function GiphySearch() {
 
   return (
     <div className="min-h-screen flex flex-col justify-between">
-      <main className="flex-grow w-full flex flex-col items-center justify-center h-1 bg-gradient-to-b from-slate-900 to-slate-800">
+      <main className="flex-grow w-full flex flex-col flex-1 min-h-0 bg-gradient-to-b from-slate-900 to-slate-800">
         {activeDiv === "Home" && <YearProgress />}
-        {activeDiv === "Tip" && <SupportDeveloperCard />}
+        {activeDiv === "Tip" && (
+          <div className="flex-1 w-full flex items-center justify-center">
+            <SupportDeveloperCard />
+          </div>
+        )}
       </main>
 
       {/* Footer */}

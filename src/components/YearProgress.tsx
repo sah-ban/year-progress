@@ -72,7 +72,7 @@ const YearProgress = () => {
   const offset = circumference - (displayProgressInt / 100) * circumference;
 
   return (
-    <div className="h-full w-full text-white flex flex-col items-center justify-between relative overflow-hidden py-5">
+    <div className="flex-1 w-full text-white flex flex-col items-center justify-between relative overflow-hidden py-5">
       {/* Header */}
       <div className="text-center ">
         <h2 className="text-2xl uppercase tracking-[0.3em] font-semibold text-zinc-300">
