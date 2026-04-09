@@ -1,8 +1,11 @@
 import { NextResponse } from "next/server";
 import { getYearProgressFromTimestamp } from "@/lib/time";
-import Redis from "ioredis";
+import { Redis } from "@upstash/redis";
 
-const redis = new Redis(process.env.REDIS_URL ?? "");
+const redis = new Redis({
+  url: process.env.KV_REST_API_URL as string,
+  token: process.env.KV_REST_API_TOKEN as string,
+});
 
 export async function GET() {
   const ms = Date.now();
