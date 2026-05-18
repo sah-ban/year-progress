@@ -1,11 +1,16 @@
 import React from "react";
-import { useWriteContract, useWaitForTransactionReceipt } from "wagmi";
+import {
+  useAccount,
+  useWriteContract,
+  useWaitForTransactionReceipt,
+} from "wagmi";
 import { Address } from "viem";
 import abi from "../contracts/abi.json";
 import { base } from "wagmi/chains";
 import { parseEther } from "viem";
 import { useEffect, useState } from "react";
 import sdk from "@farcaster/miniapp-sdk";
+import ConnectButton from "./Connect";
 
 const CONTRACT_ADDRESS =
   "0x6731B815BD9F699B6E2f3Bc756ff602b49c4dE64" as Address;
@@ -15,6 +20,8 @@ interface MintButtonProps {
 }
 
 const MintButton: React.FC<MintButtonProps> = ({ now  }) => {
+  const { isConnected } = useAccount();
+
   // Write hook
   const { writeContract, data: hash, isPending } = useWriteContract();
 
@@ -46,12 +53,20 @@ const MintButton: React.FC<MintButtonProps> = ({ now  }) => {
     }
   }, [isConfirmed]);
 
+  if (!isConnected) {
+    return (
+      <div className="w-full flex justify-center">
+        <ConnectButton />
+      </div>
+    );
+  }
+
   return (
     <div className="w-full flex justify-center">
       <button
         onClick={handleMintNFT}
         disabled={isPending || isConfirming || isConfirmed}
-        className="text-white text-center py-2 rounded-xl font-semibold text-lg shadow-lg relative overflow-hidden transform transition-all duration-200 hover:scale-110 active:scale-95 flex items-center justify-center gap-2"
+        className="text-white text-center py-2 rounded-full font-semibold text-lg shadow-lg relative overflow-hidden transform transition-all duration-200 hover:scale-110 active:scale-95 flex items-center justify-center gap-2 cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
         style={{
           background:
             "linear-gradient(90deg, #8B5CF6, #7C3AED, #A78BFA, #8B5CF6)",
