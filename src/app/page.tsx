@@ -37,7 +37,7 @@ export async function generateMetadata({
       description: "Track year progress on Farcaster",
       images: [
         {
-          url: `${appUrl}/og.png`,
+          url: `${appUrl}/og`,
           width: 1200,
           height: 630,
           alt: "Year Progress",
