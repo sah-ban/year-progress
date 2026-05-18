@@ -1,170 +1,220 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import sdk from "@farcaster/miniapp-sdk";
+import { getYearProgressFromTimestamp } from "@/lib/time";
 import MintButton from "./MintButton";
 
 const YearProgress = () => {
-  const [progress, setProgress] = useState(0);
+  const [now, setNow] = useState(() => Date.now());
   const [displayProgress, setDisplayProgress] = useState(0);
-  const [daysPassed, setDaysPassed] = useState(0);
-  const [daysTotal, setDaysTotal] = useState(365);
-  const [year, setYear] = useState(0);
-  const [dateLabel, setDateLabel] = useState("");
-  const mintedAt = Math.floor(Date.now() / 1000);
 
   useEffect(() => {
-    const calculate = () => {
-      const now = new Date();
-
-      const year = now.getUTCFullYear();
-
-      const start = Date.UTC(year, 0, 1, 0, 0, 0);
-      const end = Date.UTC(year + 1, 0, 1, 0, 0, 0);
-
-      const totalMs = end - start;
-      const elapsedMs = Date.now() - start;
-
-      const percent = Math.min(100, (elapsedMs / totalMs) * 100);
-
-      const dayMs = 1000 * 60 * 60 * 24;
-      const daysTotal = Math.round(totalMs / dayMs);
-      const daysPassed = Math.floor(elapsedMs / dayMs);
-
-      setYear(year);
-      setProgress(percent);
-      setDaysPassed(daysPassed);
-      setDaysTotal(daysTotal);
-
-      setDateLabel(
-        now.toLocaleDateString("en-US", {
-          weekday: "long",
-          month: "long",
-          day: "numeric",
-          timeZone: "UTC",
-        })
-      );
-    };
-
-    calculate();
-    const timer = setInterval(calculate, 60 * 60 * 1000);
+    const timer = setInterval(() => setNow(Date.now()), 60 * 60 * 1000);
     return () => clearInterval(timer);
   }, []);
 
-  // Smooth percentage animation
+  const { year, percent, daysPassed, daysTotal } = useMemo(
+    () => getYearProgressFromTimestamp(now),
+    [now],
+  );
+
+  const dateLabel = useMemo(
+    () =>
+      new Date(now)
+        .toLocaleDateString("en-US", {
+          weekday: "short",
+          month: "short",
+          day: "numeric",
+          timeZone: "UTC",
+        })
+        .toUpperCase(),
+    [now],
+  );
+
+  const mintedAt = Math.floor(now / 1000);
+
   useEffect(() => {
+    if (
+      typeof window !== "undefined" &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    ) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setDisplayProgress(percent);
+      return;
+    }
     let frame: number;
     const animate = () => {
       setDisplayProgress((prev) => {
-        if (Math.abs(prev - progress) < 0.1) return progress;
-        return prev + (progress - prev) * 0.08;
+        if (Math.abs(prev - percent) < 0.1) return percent;
+        return prev + (percent - prev) * 0.08;
       });
       frame = requestAnimationFrame(animate);
     };
     animate();
     return () => cancelAnimationFrame(frame);
-  }, [progress]);
+  }, [percent]);
 
-  const radius = 90;
-  const circumference = 2 * Math.PI * radius;
   const displayProgressInt = Math.floor(displayProgress);
 
-  const offset = circumference - (displayProgressInt / 100) * circumference;
+  const shareText = `${year} is ${displayProgressInt} percent complete!`;
+  const shareUrl = `${process.env.NEXT_PUBLIC_URL}?t=${mintedAt}`;
+
+  const handleShareCast = async () => {
+    const context = await sdk.context;
+    if (context) {
+      sdk.actions.composeCast({
+        text: shareText,
+        embeds: [shareUrl],
+      });
+    } else {
+      const intent = `https://farcaster.xyz/~/compose?text=${encodeURIComponent(
+        shareText
+      )}&embeds[]=${shareUrl}`;
+      window.open(intent, "_blank");
+    }
+  };
+
+  const handleShareTweet = async () => {
+    const intent = `https://twitter.com/intent/tweet?text=${encodeURIComponent(
+      shareText
+    )}&url=${encodeURIComponent(shareUrl)}`;
+    const context = await sdk.context;
+    if (context) {
+      sdk.actions.openUrl(intent);
+    } else {
+      window.open(intent, "_blank");
+    }
+  };
 
   return (
-    <div className="flex-1 w-full text-white flex flex-col items-center justify-between relative overflow-hidden py-5">
-      {/* Header */}
-      <div className="text-center ">
-        <h2 className="text-2xl uppercase tracking-[0.3em] font-semibold text-zinc-300">
-          {year} Progress
-        </h2>
-        <p className="text-sm mt-2 text-zinc-400">{dateLabel} (UTC)</p>
-      </div>
-      {/* Circular Progress */}
-      <div className="relative z-10 flex justify-center">
-        <div className="relative w-[200px] h-[200px] group">
-          <svg width="200" height="200" className="rotate-[-90deg]" aria-hidden>
-            {/* Track */}
-            <circle
-              cx="100"
-              cy="100"
-              r={90}
-              strokeWidth="14"
-              fill="none"
-              className="text-zinc-700"
-              stroke="currentColor"
-            />
+    <div className="flex-1 w-full text-white relative overflow-hidden">
+      <div className="w-full max-w-lg mx-auto flex flex-col items-center gap-6 px-5 py-7 sm:px-8 sm:py-10 md:py-14">
+        <div className="text-center">
+          <div className="text-[11px] tracking-[0.35em] uppercase text-white/60">
+            Year Progress
+          </div>
+          <div className="mt-1 text-base font-semibold tracking-[0.08em] text-white/75">
+            {year} · {dateLabel}
+          </div>
+        </div>
 
-            {/* Soft halo */}
-            <circle
-              cx="100"
-              cy="100"
-              r={90}
-              strokeWidth="20"
-              fill="none"
-              className="text-lime-500/10"
-              stroke="currentColor"
-            />
-
-            {/* Progress */}
-            <circle
-              cx="100"
-              cy="100"
-              r={90}
-              strokeWidth="14"
-              fill="none"
-              strokeLinecap="butt"
-              strokeDasharray={circumference}
-              strokeDashoffset={offset}
-              className="text-lime-400 transition-all duration-700 ease-out"
-              stroke="currentColor"
-            />
-          </svg>
-
-          {/* Center Panel */}
-          <div className="absolute inset-3 rounded-full bg-slate-900/80 backdrop-blur border border-white/5 shadow-inner flex flex-col items-center justify-center text-center transition group-hover:scale-[1.02]">
+        <div className="relative w-50 h-50">
+          <div
+            className="absolute inset-0 rounded-full"
+            style={{
+              background: `conic-gradient(#22d3ee 0% ${displayProgress}%, rgba(255,255,255,0.08) ${displayProgress}% 100%)`,
+              filter: "drop-shadow(0 0 28px rgba(34,211,238,0.45))",
+            }}
+          />
+          <div className="absolute inset-4 rounded-full bg-[#0b1020]/85 backdrop-blur border border-white/10 flex flex-col items-center justify-center">
             <span
-              className="text-[48px] font-extrabold leading-none text-lime-400"
+              className="text-[52px] font-extrabold leading-none tracking-tight text-cyan-400"
               aria-live="polite"
             >
               {displayProgressInt}%
             </span>
-
-            <span className="mt-2 text-[11px] tracking-wide text-zinc-400">
-              Day {daysPassed} of {daysTotal}
+            <span className="mt-1.5 text-[10px] tracking-[0.2em] uppercase text-white/55">
+              Day {daysPassed} / {daysTotal}
             </span>
           </div>
         </div>
+
+        <YearDotGrid
+          year={year}
+          daysPassed={daysPassed}
+          daysTotal={daysTotal}
+        />
+
+        <div className="w-full flex flex-col gap-3">
+          <div className="flex gap-2.5 w-full">
+            <button
+              onClick={handleShareCast}
+              className="flex-1 rounded-full bg-white/10 border border-white/15 text-white text-sm font-semibold py-3 hover:bg-white/15 transition inline-flex items-center justify-center gap-2 cursor-pointer"
+            >
+              <svg
+                viewBox="0 0 1000 1000"
+                className="w-4 h-4"
+                aria-hidden
+                fill="currentColor"
+              >
+                <path d="M257.778 155.556h484.444v688.888h-71.111V528.889h-.697c-7.86-87.212-81.156-155.555-170.414-155.555s-162.553 68.343-170.414 155.555h-.697v315.555h-71.111z" />
+                <path d="m128.889 253.333 28.889 97.778h24.444v395.556c-12.273 0-22.222 9.949-22.222 22.222v26.667h-4.444c-12.273 0-22.223 9.949-22.223 22.222v26.667h248.889v-26.667c0-12.273-9.949-22.222-22.222-22.222h-4.444v-26.667c0-12.273-9.95-22.222-22.222-22.222h-26.667V253.333zM675.556 746.667c-12.273 0-22.223 9.949-22.223 22.222v26.667h-4.444c-12.273 0-22.222 9.949-22.222 22.222v26.667h248.889v-26.667c0-12.273-9.95-22.222-22.223-22.222h-4.444v-26.667c0-12.273-9.949-22.222-22.222-22.222V351.111h24.444l28.889-97.778H702.222v493.334z" />
+              </svg>
+              Cast
+            </button>
+            <button
+              onClick={handleShareTweet}
+              className="flex-1 rounded-full bg-white/10 border border-white/15 text-white text-sm font-semibold py-3 hover:bg-white/15 transition inline-flex items-center justify-center gap-2 cursor-pointer"
+            >
+              <svg
+                viewBox="0 0 24 24"
+                className="w-4 h-4"
+                aria-hidden
+                fill="currentColor"
+              >
+                <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+              </svg>
+              Tweet
+            </button>
+          </div>
+          <div className="flex justify-center">
+            <MintButton now={mintedAt} />
+          </div>
+        </div>
       </div>
-      {/* Stats */}
-      <div className="relative z-10 grid grid-cols-2 gap-6">
-        <Stat label="Days Passed" value={daysPassed} />
-        <Stat label="Days Left" value={daysTotal - daysPassed} />
-      </div>
-      <button
-        onClick={() =>
-          sdk.actions.composeCast({
-            text: `${year} is ${displayProgressInt}% complete!`,
-            embeds: [`${process.env.NEXT_PUBLIC_URL}?t=${mintedAt}`],
-          })
-        }
-        className="bg-[#7C3AED] text-white px-4 py-2 rounded-lg hover:bg-[#38BDF8] transition cursor-pointer font-semibold mt-4"
-      >
-        Share
-      </button>{" "}
-      <MintButton now={mintedAt} />
     </div>
   );
 };
 
-const Stat = ({ label, value }: { label: string; value: number }) => (
-  <div className="rounded-2xl bg-slate-800/70 border border-white/5 px-6 py-4 text-center shadow-md">
-    <div className="text-2xl font-bold text-white">{value}</div>
-    <div className="mt-1 text-[10px] uppercase tracking-wider text-zinc-400">
-      {label}
-    </div>
-  </div>
-);
+interface YearDotGridProps {
+  year: number;
+  daysPassed: number;
+  daysTotal: number;
+}
 
+const YearDotGrid = ({ year, daysPassed, daysTotal }: YearDotGridProps) => {
+  return (
+    <div className="w-full rounded-2xl bg-white/04 border border-white/10 backdrop-blur p-3.5">
+      <div className="flex justify-between items-center mb-2.5">
+        <div className="text-[9px] tracking-[0.2em] uppercase text-white/50">
+          Days of {year}
+        </div>
+        <div className="flex gap-2.5 text-[9px] text-white/45">
+          <span className="inline-flex items-center gap-1">
+            <span className="w-2 h-2 rounded-[2px] bg-cyan-400 shadow-[0_0_4px_rgba(34,211,238,0.5)]" />
+            Passed
+          </span>
+          <span className="inline-flex items-center gap-1">
+            <span className="w-2 h-2 rounded-[2px] bg-white shadow-[0_0_5px_white]" />
+            Today
+          </span>
+          <span className="inline-flex items-center gap-1">
+            <span className="w-2 h-2 rounded-[2px] bg-white/10" />
+            Ahead
+          </span>
+        </div>
+      </div>
+
+      <div
+        className="grid gap-[2px]"
+        style={{ gridTemplateColumns: "repeat(31, 1fr)" }}
+      >
+        {Array.from({ length: daysTotal }, (_, i) => {
+          const dayOfYear = i + 1;
+          let cls = "aspect-square rounded-[1.5px]";
+          if (dayOfYear < daysPassed) {
+            cls += " bg-cyan-400 shadow-[0_0_3px_rgba(34,211,238,0.5)]";
+          } else if (dayOfYear === daysPassed) {
+            cls += " bg-white shadow-[0_0_5px_white]";
+          } else {
+            cls += " bg-white/10";
+          }
+          return <div key={i} className={cls} />;
+        })}
+      </div>
+    </div>
+  );
+};
 
 export default YearProgress;
