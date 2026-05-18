@@ -5,9 +5,9 @@ import { NextRequest } from "next/server";
 export const runtime = "edge";
 
 export async function GET(req: NextRequest) {
-  const t = Number(req.nextUrl.searchParams.get("t"));
-
-  const ms = Number.isFinite(t) ? t * 1000 : Date.now();
+  const tParam = req.nextUrl.searchParams.get("t");
+  const t = tParam !== null ? Number(tParam) : NaN;
+  const ms = Number.isFinite(t) && t > 0 ? t * 1000 : Date.now();
 
   const { year, percent } = getYearProgressFromTimestamp(ms);
   const displayProgressInt = percent >= 99.8 ? 100 : Math.floor(percent);
