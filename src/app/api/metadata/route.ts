@@ -27,7 +27,7 @@ export async function GET(req: NextRequest) {
   return NextResponse.json({
     name: `Year Progress: ${year}`,
     description: "A simple visualization of the year’s progress.",
-    image: `https://year.itscashless.com/nft?t=${tParam}`,
+    image: `${process.env.NEXT_PUBLIC_URL}/nft?t=${tParam}`,
     attributes: [
       { trait_type: "Year", value: year },
       { trait_type: "Progress", value: `${percent}%` },
